@@ -1,0 +1,27 @@
+{
+  "name": "smsdesktop",
+  "version": "0.0.1",
+  "description": "An open source project that allow you to send sms from your browser through your phone",
+  "main": "index.js",
+  "scripts": {
+    "test": "no"
+  },
+  "keywords": [
+    "sms",
+    "browser",
+    "pushbullet"
+  ],
+  "author": "Armaldio",
+  "license": "MIT",
+  "dependencies": {
+    "@types/body-parser": "^1.16.2",
+    "@types/express": "^4.0.35",
+    "@types/lowdb": "^0.15.0",
+    "@types/moment": "^2.13.0",
+    "body-parser": "^1.17.1",
+    "connect-livereload": "^0.6.0",
+    "express": "^4.15.2",
+    "lowdb": "^0.16.0",
+    "moment": "^2.18.1"
+  }
+}
