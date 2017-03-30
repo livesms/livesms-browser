@@ -16,6 +16,6 @@ Enjoy!
 ```bash
 git clone https://github.com/livesms/livesms-browser`
 ```
-- Configure : [See Configuration](./configuration.md)
+- Configure : [See Configuration](./Configuration.md)
 - Host
 - Profit!
