@@ -2,11 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>LiveSMS</title>
+    <link rel="stylesheet" href="style/style.css">
+    <link rel="stylesheet" href="style/chat.css">
 </head>
 <body>
 <div>
-    <p>This is a tests</p>
+    <div id="messages">
+        <div class="menu">
+            <div class="back"><i class="fa fa-chevron-left"></i> <img src="http://i.imgur.com/DY6gND0.png"
+                                                                      draggable="false"/></div>
+            <div class="name">Contact</div>
+            <div class="last">XX::XX</div>
+        </div>
+        <ol id="message-list" class="chat">
+        </ol>
+        <input class="textarea" type="text" placeholder="Type here!"/>
+        <div class="emojis"></div>
+    </div>
 </div>
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="index.js"></script>
 </body>
 </html>
