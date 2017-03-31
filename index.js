@@ -8,8 +8,11 @@ const express    = require('express');
 const server     = require('http').Server(app);
 const io         = require('socket.io')(server);
 
-server.listen(8081);
-console.log("Listening");
+var server_port       = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+
+server.listen(server_port, server_ip_address);
+console.log("Listening " + server_ip_address + ":" + server_port);
 
 //http://stackoverflow.com/questions/8684772/having-a-service-receive-sms-messages
 //http://stackoverflow.com/questions/19813707/android-receive-sms-even-if-app-is-closed
@@ -21,11 +24,6 @@ db.defaults({
 
 io.on('connection', function (socket) {
 	console.log("Connected");
-	/*
-	 socket.on('my other event', function (data) {
-	 console.log(data);
-	 });
-	 */
 });
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -54,3 +52,14 @@ app.post('/newMessage', function (req, res) {
 	io.emit('message', message);
 	res.end("ok");
 });
+
+/*
+app.get('/clear', function (req, res) {
+	fs.unlink("db.json", function (err, res) {
+		if (err) res.error("Unable to delete file");
+		else {
+			res.end("ok");
+		}
+	});
+});
+*/

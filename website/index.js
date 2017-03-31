@@ -20,8 +20,14 @@ function timeConverter (UNIX_timestamp) {
 	return time;
 }
 
-let myNumber = "0642377981";
-let socket   = io.connect();
+let myNumber = "XXXXXXXXXX";
+let url      = window.location.href;
+
+let reg   = /^(https?|http)/;
+let wsUrl = url.replace(reg, "ws").replace(/\/$/, "") + ":8000/";
+console.log("wsurl = " + wsUrl);
+
+let socket = io.connect(wsUrl);
 
 /**
  * Basic json request
@@ -46,8 +52,12 @@ function request (url, callback) {
 }
 
 socket.on('message', function (data) {
+	let who = "other";
+	if (data.from === myNumber)
+		who = "self";
+
 	let contact_template = `
-			<li class="other">
+			<li class="${who}">
                 <div class="avatar"><img src="http://i.imgur.com/DY6gND0.png" draggable="false"/></div>
                 <div class="msg">
                     ${data.message}
@@ -62,7 +72,7 @@ socket.on('message', function (data) {
 
 $(function () {
 	console.log("Ready");
-	request("http://localhost:8081/messages", function (response) {
+	request(url.replace(/\/$/, "") + "/messages", function (response) {
 		$.each(response, function (index, value) {
 
 			let who = "other";
