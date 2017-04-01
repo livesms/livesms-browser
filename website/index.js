@@ -22,9 +22,12 @@ function timeConverter (UNIX_timestamp) {
 
 let myNumber = "XXXXXXXXXX";
 let url      = window.location.href;
+console.log("url : " + url);
 
 let reg   = /^(https?|http)/;
-let wsUrl = url.replace(reg, "ws").replace(/\/$/, "") + ":8000/";
+
+//TODO Use url parser
+let wsUrl = url.replace(reg, "ws").replace(/\/$/, "");// + ":8081/";
 console.log("wsurl = " + wsUrl);
 
 let socket = io.connect(wsUrl);
@@ -52,8 +55,9 @@ function request (url, callback) {
 }
 
 socket.on('message', function (data) {
+	console.log("Message received from server");
 	let who = "other";
-	if (data.from === myNumber)
+	if (data.phone === myNumber)
 		who = "self";
 
 	let contact_template = `
@@ -90,7 +94,7 @@ $(function () {
             </li>
 			`;
 
-			$("#message-list").append(contact_template);
+			//$("#message-list").append(contact_template);
 
 		});
 	});

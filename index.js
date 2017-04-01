@@ -7,12 +7,34 @@ const app        = require('express')();
 const express    = require('express');
 const server     = require('http').Server(app);
 const io         = require('socket.io')(server);
+const firebase   = require("firebase");
 
-var server_port       = process.env.OPENSHIFT_NODEJS_PORT || 8080;
-var server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+const server_port       = process.env.OPENSHIFT_NODEJS_PORT || 8081;
+const server_ip_address = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
 
 server.listen(server_port, server_ip_address);
 console.log("Listening " + server_ip_address + ":" + server_port);
+
+let fbconfig = require("./fbconfig.json");
+firebase.initializeApp(fbconfig);
+let database = firebase.database();
+
+let receivedMessages = database.ref('serverqueue/');
+
+receivedMessages.on('value', function (snapshot) {
+	let val = snapshot.val();
+
+	for (let property in val) {
+		if (val.hasOwnProperty(property)) {
+
+			console.log("Message : ", val[property]);
+			db.get('messages').push(val[property]).write();
+			firebase.database().ref("serverqueue/" + property).remove();
+
+			io.sockets.emit('message', val[property]);
+		}
+	}
+});
 
 //http://stackoverflow.com/questions/8684772/having-a-service-receive-sms-messages
 //http://stackoverflow.com/questions/19813707/android-receive-sms-even-if-app-is-closed
@@ -23,7 +45,7 @@ db.defaults({
 }).write();
 
 io.on('connection', function (socket) {
-	console.log("Connected");
+	console.log("Client joined");
 });
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
@@ -43,23 +65,25 @@ app.get('/messages', function (req, res) {
 
 app.post('/newMessage', function (req, res) {
 	let message = {
-		from     : req.body.contact,
+		phone     : req.body.contact,
 		message  : req.body.message,
 		timestamp: req.body.timestamp
 	};
 
+	console.log("New message ", message);
+
 	db.get('messages').push(message).write();
-	io.emit('message', message);
+	io.broadcast.emit('message', message);
 	res.end("ok");
 });
 
 /*
-app.get('/clear', function (req, res) {
-	fs.unlink("db.json", function (err, res) {
-		if (err) res.error("Unable to delete file");
-		else {
-			res.end("ok");
-		}
-	});
-});
-*/
+ app.get('/clear', function (req, res) {
+ fs.unlink("db.json", function (err, res) {
+ if (err) res.error("Unable to delete file");
+ else {
+ res.end("ok");
+ }
+ });
+ });
+ */

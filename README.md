@@ -1,4 +1,6 @@
 # LiveSMS
+
+## Node.js + Socket.io + Firebase = LiveSMS
 ## Node.js webserver that allow you to answer SMS from your browser
 
 
