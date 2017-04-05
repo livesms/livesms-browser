@@ -3,34 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <title>LiveSMS</title>
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link rel="stylesheet" href="chat.css">
 </head>
 <body>
-<div class="row">
-    <div class="collection col s2">
-        <ul id="contacts" class="collection with-header">
-            <li class="collection-header"><h5>Contacts</h5></li>
+<div class="container clearfix">
+    <div class="people-list" id="people-list">
+        <div class="search">
+            <input type="text" placeholder="search" />
+            <i class="fa fa-search"></i>
+        </div>
+        <ul class="list" id="contacts">
+            <!-- Contacts -->
         </ul>
     </div>
 
-    <div id="messages" class="col s10">
-        <nav>
-            <div class="nav-wrapper">
-                <img class="responsive-img circle" width="48px" src="http://i.imgur.com/DY6gND0.png"
-                     draggable="false">
-                <a id="currentContact">{{ contactName }}</a>
-                <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    <li><a href="#">Options</a></li>
-                </ul>
-            </div>
-        </nav>
-        <div id="message-list" class="row">
+    <div class="chat">
+        <div class="chat-header clearfix">
+            <img width="48px" src="http://i.imgur.com/DY6gND0.png" alt="avatar" />
 
+            <div class="chat-about">
+                <div class="chat-with">{{ contactname }}</div>
+                <div class="chat-num-messages">42 messages</div>
+            </div>
+            <i class="fa fa-star"></i>
+        </div> <!-- end chat-header -->
+
+        <div class="chat-history">
+            <ul id="chat-msgs">
+                <!-- Messages -->
+            </ul>
+
+        </div> <!-- end chat-history -->
+
+        <div class="chat-message clearfix">
+            <textarea name="message-to-send" id="message-to-send" placeholder ="Type your message" rows="3"></textarea>
+
+            <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
+            <i class="fa fa-file-image-o"></i>
+
+            <button>Send</button>
+
+        </div> <!-- end chat-message -->
+
+    </div> <!-- end chat -->
+
+</div> <!-- end container -->
+
+<script id="message-template" type="text/x-handlebars-template">
+    <li class="clearfix">
+        <div class="message-data align-right">
+            <span class="message-data-time" >{{time}}, Today</span> &nbsp; &nbsp;
+            <span class="message-data-name" >Olia</span> <i class="fa fa-circle me"></i>
         </div>
-        <input id="input" class="textarea" type="text" placeholder="Type here.."/>
-    </div>
+        <div class="message other-message float-right">
+            {{messageOutput}}
+        </div>
+    </li>
+</script>
+
+<script id="message-response-template" type="text/x-handlebars-template">
+    <li>
+        <div class="message-data">
+            <span class="message-data-name"><i class="fa fa-circle online"></i> Vincent</span>
+            <span class="message-data-time">{{time}}, Today</span>
+        </div>
+        <div class="message my-message">
+            {{response}}
+        </div>
+    </li>
+</script>
+
 </div>
 
 <script

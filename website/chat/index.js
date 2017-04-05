@@ -37,25 +37,33 @@ function timeConverter (UNIX_timestamp) {
  * @param who
  */
 function addMessageQuote (message, who) {
-	/*if (who === "self")
-	 who += " offset-s9";*/
+	let align_right = "";
+	let float_right = "";
+	let message_type = "other-message";
+
+	if (who === "self") {
+		align_right = "align-right";
+		float_right = "float-right";
+		message_type = "my-message";
+	}
 
 	let contact_template =
-			`<div class="msg-bubble">
-			 <br>
-			 <div class="${who} col s12 msg">
-			 <div class="avatar"><img src="http://i.imgur.com/DY6gND0.png" draggable="false"/></div>
-			 	<div>
-			 		${message.message}
-			 	</div>
-			 	<span class="time"><i class="material-icons tiny">alarm</i>${timeConverter(message.timestamp)}</span>
-			 </div>
-			 </div>
-			 `;
+			`
+				<li class="clearfix">
+                    <div class="message-data ${align_right}">
+                        <span class="message-data-time" >${timeConverter(message.timestamp)}</span> &nbsp; &nbsp;
+                        <span class="message-data-name" >{{ contactname }}</span> <i class="fa fa-circle me"></i>
 
-	$("#message-list").append(contact_template);
-	$('html, body').animate({
-		scrollTop: $("#message-list")
+                    </div>
+                    <div class="message ${message_type}  ${float_right}">
+                        ${message.message}
+                    </div>
+                </li>
+					 `;
+
+	$("#chat-msgs").append(contact_template);
+	$('.chat-history').animate({
+		scrollTop: $("#chat-msgs")
 			.height()
 	}, 0);
 }
@@ -149,12 +157,16 @@ $(function () {
 				$("#currentContact").text(value.name);
 
 			$("#contacts")
-				.append(`<li class="collection-item avatar">
-      						<img src="http://i.imgur.com/DY6gND0.png" alt="" class="circle">
-      						<span class="title">${value.name}</span>
-      						<p>Some text</p>
-      						<a href="#!" data-user="${value.contact}" class="secondary-content"><span class="new badge">4</span></a>
-    					</li>
+				.append(`
+						<li class="clearfix" data-user="${value.contact}">
+            			    <img width="55px" src="http://i.imgur.com/DY6gND0.png" alt="avatar" />
+            			    <div class="about">
+            			        <div class="name">${value.name}</div>
+            			        <div class="status">
+            			            <i class="fa fa-circle online"></i> Last mssage : 
+            			        </div>
+            			    </div>
+            			</li>           
     					`)
 		});
 	});
