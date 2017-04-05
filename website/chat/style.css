@@ -1,0 +1,45 @@
+body {
+    background: #f1f1f1;
+}
+
+.contacts {
+}
+
+.messages {
+    display: none;
+}
+
+#input {
+    position: absolute;
+    bottom: 0;
+}
+
+.avatar img {
+    width: 32px;
+}
+
+.self {
+    text-align: right;
+}
+
+.msg {
+    border: 1px solid #c2c2c2;
+    border-radius: 3px;
+    padding-top: 10px !important;
+    background: #eaeaea !important;
+    margin-bottom: 10px;
+}
+
+#message-list {
+    padding-top: 15px;
+    overflow-y: scroll;
+}
+
+span.time {
+    color: #a0a0a0;
+    font-size: 12px;
+}
+
+.msg-bubble {
+
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LiveSMS</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="row">
+    <div class="collection col s2">
+        <ul id="contacts" class="collection with-header">
+            <li class="collection-header"><h5>Contacts</h5></li>
+        </ul>
+    </div>
+
+    <div id="messages" class="col s10">
+        <nav>
+            <div class="nav-wrapper">
+                <img class="responsive-img circle" width="48px" src="http://i.imgur.com/DY6gND0.png"
+                     draggable="false">
+                <a id="currentContact">{{ contactName }}</a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="#">Options</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div id="message-list" class="row">
+
+        </div>
+        <input id="input" class="textarea" type="text" placeholder="Type here.."/>
+    </div>
+</div>
+
+<script
+        src="https://code.jquery.com/jquery-3.2.1.min.js"
+        integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+        crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+<script src="../api/config"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/js/materialize.min.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
