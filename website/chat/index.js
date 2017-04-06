@@ -171,19 +171,32 @@ $(function () {
 		});
 	});
 
-	$('#input')
+	$('#message-to-send')
 		.keypress(function (e) {
 			if (e.which == 13) {
 				let message = {
-					message  : $('#input').val(),
+					message  : $('#message-to-send').val(),
 					timestamp: Date.now() + "",
 					to       : config.currentContact
 				};
 				socket.emit('browserMessage', message);
-				$("#input").val("");
+				$("#message-to-send").val("");
 				addMessageQuote(message, "self");
 
 				return false;
 			}
 		});
+
+	$("#send-button").on("click", () => {
+		let message = {
+			message  : $('#message-to-send').val(),
+			timestamp: Date.now() + "",
+			to       : config.currentContact
+		};
+		socket.emit('browserMessage', message);
+		$("#message-to-send").val("");
+		addMessageQuote(message, "self");
+
+		return false;
+	});
 });
