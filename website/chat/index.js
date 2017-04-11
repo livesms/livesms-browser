@@ -28,7 +28,10 @@ function timeConverter (UNIX_timestamp) {
 	let hour   = a.getHours();
 	let min    = a.getMinutes();
 	let sec    = a.getSeconds();
-	return date + ' ' + month + ' ' + year + ' ' + pad(hour, 2) + ':' + pad(min, 2) + ':' + pad(sec, 2);
+	return date + ' ' + month + ' ' + year + ' ' + pad(hour,
+			2) + ':' + pad(min,
+			2) + ':' + pad(sec,
+			2);
 }
 
 /**
@@ -37,13 +40,13 @@ function timeConverter (UNIX_timestamp) {
  * @param who
  */
 function addMessageQuote (message, who) {
-	let align_right = "";
-	let float_right = "";
+	let align_right  = "";
+	let float_right  = "";
 	let message_type = "other-message";
 
 	if (who === "self") {
-		align_right = "align-right";
-		float_right = "float-right";
+		align_right  = "align-right";
+		float_right  = "float-right";
 		message_type = "my-message";
 	}
 
@@ -52,7 +55,7 @@ function addMessageQuote (message, who) {
 				<li class="clearfix">
                     <div class="message-data ${align_right}">
                         <span class="message-data-time" >${timeConverter(message.timestamp)}</span> &nbsp; &nbsp;
-                        <span class="message-data-name" >{{ contactname }}</span> <i class="fa fa-circle me"></i>
+                        <span class="message-data-name" >${message.contactName}</span> <i class="fa fa-circle me"></i>
 
                     </div>
                     <div class="message ${message_type}  ${float_right}">
@@ -63,12 +66,13 @@ function addMessageQuote (message, who) {
 
 	$("#chat-msgs").append(contact_template);
 	$('.chat-history').animate({
-		scrollTop: $("#chat-msgs")
-			.height()
-	}, 0);
+			scrollTop: $("#chat-msgs")
+				.height()
+		},
+		0);
 }
 
-Notification.requestPermission(function (status) {
+Notification.requestPermission((status) => {
 	if (Notification.permission !== status) {
 		Notification.permission = status;
 	}
@@ -76,46 +80,27 @@ Notification.requestPermission(function (status) {
 
 let connString = config.protocol + config.domain + ':' + config.clientport;
 
-console.log("Websocket connection string:", connString, config.wsclientopts);
+console.log("Websocket connection string:",
+	connString,
+	config.wsclientopts);
 
-let socket = io.connect(connString, config.wsclientopts);
+let socket = io.connect(connString,
+	config.wsclientopts);
 
 // Handle error event
-socket.on('error', function (err) {
+socket.on('error', (err) => {
 	console.log("Websocket 'error' event:", err);
 });
 
 // Handle connection event
-socket.on('connect', function () {
+socket.on('connect', () => {
 	console.log("Websocket 'connected' event with params:", socket);
 });
 
 // Handle disconnect event
-socket.on('disconnect', function () {
+socket.on('disconnect', () => {
 	console.log("Websocket 'disconnect' event");
 });
-
-/**
- * Basic json request
- * @param url
- * @param callback
- */
-function request (url, callback) {
-	let settings = {
-		"async"      : true,
-		"crossDomain": true,
-		"url"        : url,
-		"method"     : "GET",
-		"headers"    : {
-			"content-type": "application/json",
-		},
-	};
-
-	$.ajax(settings)
-	 .done(function (response) {
-		 callback(JSON.parse(response));
-	 });
-}
 
 socket.on('message', function (data) {
 	console.log("Message received from server", data);
@@ -127,10 +112,33 @@ socket.on('message', function (data) {
 	addMessageQuote(data, who);
 });
 
+function addContact (value) {
+	$("#contacts")
+		.append(`
+						<li class="clearfix" data-user="${value.phone}">
+            			    <img width="55px" src="http://i.imgur.com/DY6gND0.png" alt="avatar" />
+            			    <div class="about">
+            			        <div class="name">${value.name}</div>
+            			        <div class="status">
+            			            <i class="fa fa-circle online"></i> Last mssage : 
+            			        </div>
+            			    </div>
+            			</li>           
+    					`)
+}
+
+socket.on('newContact', function (data) {
+	console.log("New contact, need to add it to the list", data);
+	addContact(data);
+});
+
 $(function () {
 	console.log("Ready");
 
-	request("//" + config.domain.replace(/\/$/, "") + ':' + config.clientport + "/messages/" + btoa(config.currentContact), function (response) {
+	socket.emit('getMessages', btoa(config.currentContact), (response) => {
+		if (response === null) return;
+
+		console.log(response);
 
 		response.sort(function (a, b) {
 			return a["timestamp"] > b["timestamp"];
@@ -138,7 +146,8 @@ $(function () {
 
 		$.each(response, function (index, value) {
 
-			console.log("Current message : ", value);
+			console.log("Current message : ",
+				value);
 
 			let who = "other";
 			if (value.from === config.number)
@@ -149,54 +158,39 @@ $(function () {
 		});
 	});
 
-	request("//" + config.domain.replace(/\/$/, "") + ':' + config.clientport + "/contacts", function (response) {
+	socket.emit('getContacts', (response) => {
 
-		$.each(response, function (index, value) {
+		$.each(response, (index, value) => {
 
-			if (value.contact === config.currentContact)
+			if (value.phone === config.currentContact)
 				$("#currentContact").text(value.name);
 
-			$("#contacts")
-				.append(`
-						<li class="clearfix" data-user="${value.contact}">
-            			    <img width="55px" src="http://i.imgur.com/DY6gND0.png" alt="avatar" />
-            			    <div class="about">
-            			        <div class="name">${value.name}</div>
-            			        <div class="status">
-            			            <i class="fa fa-circle online"></i> Last mssage : 
-            			        </div>
-            			    </div>
-            			</li>           
-    					`)
+			addContact(value);
 		});
 	});
 
-	$('#message-to-send')
-		.keypress(function (e) {
-			if (e.which == 13) {
-				let message = {
-					message  : $('#message-to-send').val(),
-					timestamp: Date.now() + "",
-					to       : config.currentContact
-				};
-				socket.emit('browserMessage', message);
-				$("#message-to-send").val("");
-				addMessageQuote(message, "self");
+	//TODO do not send on empty message
 
-				return false;
-			}
-		});
-
-	$("#send-button").on("click", () => {
+	function sendMessage () {
 		let message = {
-			message  : $('#message-to-send').val(),
+			message  : $('#message-to-send').val().trim(),
 			timestamp: Date.now() + "",
 			to       : config.currentContact
 		};
 		socket.emit('browserMessage', message);
 		$("#message-to-send").val("");
 		addMessageQuote(message, "self");
+	}
 
+	$('#message-to-send').keypress((e) => {
+		if (e.which == 13 && e.shiftKey) {
+			sendMessage();
+			return false;
+		}
+	});
+
+	$("#send-button").on("click", () => {
+		sendMessage();
 		return false;
 	});
 });

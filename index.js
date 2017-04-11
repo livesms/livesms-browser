@@ -6,8 +6,7 @@ const bodyParser = require("body-parser");
 const moment     = require("moment");
 const app        = require('express')();
 const express    = require('express');
-const server     = require('http')
-	.Server(app);
+const server     = require('http').Server(app);
 const io         = require('socket.io')(server);
 const firebase   = require("firebase");
 const base64     = require("base-64");
@@ -19,8 +18,14 @@ server.listen(config.serverport, config.serverip, function () {
 });
 
 let needToConfigure = false;
+let fbconfig;
 
-let fbconfig = require("./fbconfig.json");
+try {
+	fbconfig = require("./fbconfig.json");
+} catch (e) {
+	needToConfigure = true;
+}
+
 let database;
 
 try {
@@ -29,11 +34,34 @@ try {
 }
 catch (e) {
 	needToConfigure = true;
-	console.log("You must configure this app before using it, go to XXX to proceed");
 }
 
 let receivedMessages;
 let appQueue;
+
+function pushContact (message) {
+	let contacts = db.get('contacts')
+					 .value();
+
+	let exists = false;
+	for (let i = 0; i < contacts.length; i++) {
+		if (contacts[i].phone === message.from) {
+			exists = true;
+			return true;
+		}
+	}
+
+	if (!exists) {
+		console.log("Contact not exists, add it !");
+		let contact = {
+			phone: message.from,
+			name : message.contactName
+		};
+		db.get("contacts").push(contact).write();
+
+		io.sockets.emit('newContact', contact);
+	}
+}
 
 if (!needToConfigure) {
 
@@ -51,24 +79,42 @@ if (!needToConfigure) {
 		//For each messages remaining in the queue
 		for (let property in val) {
 			if (val.hasOwnProperty(property)) {
+				let message = val[property];
+				console.log("Message received from the queue : ", message);
 
-				console.log("Message received from the queue : ", val[property]);
+				//Check if no message found
+
+				console.log(db.get('messages.' + message.from).size().value());
+				if (db.get('messages.' + message.from).size().value() === 0) {
+					console.log("Must add default value");
+					let obj           = {};
+					obj[message.from] = [];
+					db.get('messages').push(obj)
+					  .write();
+				}
+
+				console.log("message from : ", message.from);
 
 				//Push message to the database
-				db.get('messages.' + val[property].phone)
-				  .push(val[property])
+				db.get('messages.' + message.from)
+				  .push(message)
 				  .write();
+
+				//Push the contact if it doesn't exists
+				pushContact(message);
 
 				//Remove the message from the queue
 				database.ref("serverqueue/" + property)
 						.remove();
 
 				//Send the message to the browser
-				io.sockets.emit('message', val[property]);
+				io.sockets.emit('message', message);
 			}
 		}
 	});
 
+} else {
+	console.log("You must configure this app before using it, go to XXX to proceed");
 }
 
 db.defaults({
@@ -98,6 +144,18 @@ io.on('connection', function (socket) {
 
 	});
 
+	socket.on("getMessages", (id, fn) => {
+		console.log("id = " + id + " = " + base64.decode(id));
+
+		fn(db.get('messages.' + base64.decode(id))
+			 .value());
+	});
+
+	socket.on("getContacts", (fn) => {
+		fn(db.get('contacts')
+			 .value());
+	});
+
 });
 
 app.use(bodyParser.urlencoded({extended: false}));
@@ -123,21 +181,4 @@ app.get('/chat', function (req, res) {
 
 app.get('/api/config', function (req, res) {
 	res.send('var config = ' + JSON.stringify(config));
-});
-
-app.get('/contacts', function (req, res) {
-	res.end(JSON.stringify(db.get('contacts')
-							 .value()));
-});
-
-app.get('/messages', function (req, res) {
-	res.end(JSON.stringify(db.get('messages')
-							 .value()));
-});
-
-app.get('/messages/:id', function (req, res) {
-	let id = req.params.id;
-	console.log("id = " + id + " = " + base64.decode(id));
-
-	res.end(JSON.stringify(db.get('messages.' + base64.decode(id)).value()));
 });
