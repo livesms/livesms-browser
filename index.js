@@ -126,6 +126,8 @@ db.defaults({
 io.on('connection', function (socket) {
 	console.log("Client joined");
 
+	socket.emit("config", config);
+
 	//When the server receive a new message sent from the browser
 	socket.on('browserMessage', function (message) {
 		console.log("Message received from browser : ", message);
@@ -157,6 +159,10 @@ io.on('connection', function (socket) {
 	});
 
 });
+
+/**
+ * Website serving
+ */
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
