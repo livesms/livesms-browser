@@ -52,7 +52,7 @@ function addMessageQuote(message, who) {
 				<li class="clearfix">
                     <div class="message-data ${align_right}">
                         <span class="message-data-time" >${timeConverter(message.timestamp)}</span> &nbsp; &nbsp;
-                        <span class="message-data-name" >${message.contactName}</span> <i class="fa fa-circle me"></i>
+                        <span class="message-data-name" >${who === 'self' ? "You" : message.contactName}</span> <i class="fa fa-circle me"></i>
 
                     </div>
                     <div class="message ${message_type}  ${float_right}">
@@ -123,7 +123,7 @@ function addContact(value) {
             			    <div class="about">
             			        <div class="name">${value.name}</div>
             			        <div class="status">
-            			            <i class="fa fa-circle online"></i> Last mssage : 
+            			            <i class="fa fa-circle online"></i> Last message : 
             			        </div>
             			    </div>
             			</li>           
@@ -138,10 +138,10 @@ socket.on('newContact', function (data) {
 $(function () {
     console.log("Ready");
 
-    socket.emit('getMessages', btoa(config.currentContact), (response) => {
+    socket.emit('getMessages', config.currentContact, (response) => {
         if (response === null) return;
 
-        console.log(response);
+        console.log("Loading messages : ", response);
 
         response.sort(function (a, b) {
             return a["timestamp"] > b["timestamp"];
