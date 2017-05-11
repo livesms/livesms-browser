@@ -88,6 +88,8 @@ let connString = config.protocol + config.domain + ':' + config.clientport;
 
 let socket = io.connect(connString, config.wsclientopts);
 
+let currentContact = -1;
+
 // Handle error event
 socket.on('error', (err) => {
     console.log("Websocket 'error' event:", err);
@@ -109,13 +111,24 @@ socket.on('message', function (data) {
     if (data.from === config.phone)
         who = "self";
 
-    let n = new Notification("Message from " + data.from, {body: data.message});
+    // create a base64 encoded PNG
+    //let identicon = new Identicon('d3b07384d113edec49eaa6238ad5ff00', 420).toString();
+
+    let n = new Notification("Message from " + data.from, {
+        body: data.message,
+        //icon: "data:image/png;base64," + identicon
+        icon: "http://icon-icons.com/icons2/582/PNG/512/boy_icon-icons.com_55048.png"
+    });
+
+
     addMessageQuote(data, who);
 });
 
 // ---------------------------------------------------------------------------------------------------------------------
 
 function addContact(value) {
+    if (value.name === undefined)
+        value.name = value.phone;
     $("#contacts")
         .append(`
 						<li class="clearfix" data-user="${value.phone}">
@@ -135,11 +148,13 @@ socket.on('newContact', function (data) {
     addContact(data);
 });
 
-$(function () {
-    console.log("Ready");
+function fillMessages(currentContact) {
 
-    socket.emit('getMessages', config.currentContact, (response) => {
+    $("#chat-msgs").empty();
+
+    socket.emit('getMessages', currentContact, (response) => {
         if (response === null) return;
+        if (currentContact === -1) return;
 
         console.log("Loading messages : ", response);
 
@@ -160,12 +175,19 @@ $(function () {
 
         });
     });
+}
+
+$(function () {
+    console.log("Ready");
+
+    fillMessages(currentContact);
+
 
     socket.emit('getContacts', (response) => {
 
         $.each(response, (index, value) => {
 
-            if (value.phone === config.currentContact)
+            if (value.phone === currentContact)
                 $("#currentContact").text(value.name);
 
             addContact(value);
@@ -179,7 +201,7 @@ $(function () {
         let message = {
             message: $('#message-to-send').val().trim(),
             timestamp: Date.now() + "",
-            to: config.currentContact
+            to: currentContact
         };
         socket.emit('browserMessage', message);
         $("#message-to-send").val("");
@@ -198,7 +220,12 @@ $(function () {
         return false;
     });
 
-    $(".people-list ul li").on("click", () => {
-        console.log('clicked : ', this, $(this));
+    $(document).on('click', "#contacts li", (t) => {
+        let data = $(t.currentTarget).data("user");
+
+        console.log("New current contact : ", data);
+        currentContact = data;
+
+        fillMessages(data);
     });
 });

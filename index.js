@@ -104,14 +104,14 @@ if (!needToConfigure) {
                 //Push the contact if it doesn't exists
                 pushContact(message);
 
-                //Remove the message from the queue
-                database.ref("serverqueue/" + property)
-                    .remove();
-
                 //Send the message to the browser
                 io.sockets.emit('message', message);
             }
         }
+
+        //Remove the message from the queue
+        database.ref("serverqueue/")
+            .remove();
     });
 
 } else {
@@ -135,7 +135,7 @@ io.on('connection', function (socket) {
         message.from = config.number;
 
         //Write message to database
-        db.get('messages').filter({from : message.to}).get("[0].conv")
+        db.get('messages').filter({from: message.to}).get("[0].conv")
             .push(message)
             .write();
 
