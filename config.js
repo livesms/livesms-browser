@@ -16,7 +16,7 @@ var Config = {
         reconnectionAttempts: 100,
         secure: false
     },
-    "number": "+33642377981"
+    "number": "+33xxxxxx"
 };
 
 module.exports = Config;
